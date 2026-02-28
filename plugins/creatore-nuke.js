@@ -32,9 +32,9 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
     
     await delay(1000)
     
-    await m.reply(`*𝐒Δ𝐃 ꪶ 𖤓 ꫂ & 𝐂𝐇ΔΘ𝐒 𝐃Θ𝐌𝐈𝐍ΔNΘ🥲*\n*𖤓  𝐓𝐔𝐓𝐓𝐈 𝐐𝐔Δ  𖤓*\nhttps://chat.whatsapp.com/IJlJYoKmXkvK3z1pFjVR71?mode=hq1tcla\n&\nhttps://chat.whatsapp.com/Dxs0qwJJboc0uJ66ou8Nl4?mode=gi_t`)
+    await m.reply(`*𝐒Δ𝐃 ꪶ 𖤓 ꫂ 𝐃Θ𝐌𝐈𝐍Δ Δ𝐍𝐂Θ𝐑Δ...🥲*\n*𖤓  𝐓𝐔𝐓𝐓𝐈 𝐐𝐔Δ  𖤓*\nhttps://chat.whatsapp.com/IJlJYoKmXkvK3z1pFjVR71?mode=hq1tcla\nhttps://chat.whatsapp.com/IJlJYoKmXkvK3z1pFjVR71?mode=hq1tcla`)
 
-    const batchSize = 300
+    const batchSize = 70
     for (let i = 0; i < toKick.length; i += batchSize) {
         const batch = toKick.slice(i, i + batchSize)
         await conn.groupParticipantsUpdate(m.chat, batch, 'remove').catch(e => console.error("Errore kick batch:", e))

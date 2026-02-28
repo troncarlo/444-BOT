@@ -1,8 +1,5 @@
 const handler = async (m, { conn, text, args }) => {
-    // Prende il link da args o text
     const link = args.length >= 1 ? args[0] : text
-    
-    // Regex per estrarre ESATTAMENTE il codice (ignora http, https, spazi, ecc)
     const regex = /chat\.whatsapp\.com\/([0-9A-Za-z]{20,24})/i
     const match = link ? link.match(regex) : null
 
@@ -12,10 +9,15 @@ const handler = async (m, { conn, text, args }) => {
 
     try {
         const res = await conn.groupGetInviteInfo(code)
-        
         await conn.groupAcceptInvite(code)
         
-        m.reply(`✅ *ENTRATO CON SUCCESSO*\n\n📌 *Gruppo:* ${res.subject}\n🆔 *ID:* ${res.id}\n👑 *Creatore:* @${res.owner?.split('@')[0] || 'N/A'}`, null, { mentions: [res.owner] })
+        const ownerJid = res.owner || ''
+        const mentionsList = ownerJid ? [ownerJid] : []
+        
+        await conn.sendMessage(m.chat, {
+            text: `✅ *ENTRATO CON SUCCESSO*\n\n📌 *Gruppo:* ${res.subject}\n🆔 *ID:* ${res.id}\n👑 *Creatore:* ${ownerJid ? '@' + ownerJid.split('@')[0] : 'Sconosciuto'}`,
+            mentions: mentionsList
+        }, { quoted: m })
         
     } catch (e) {
         console.error(e) 
