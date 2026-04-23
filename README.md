@@ -9,7 +9,7 @@
 
 ---
 
-> ! [NOTE]
+> [!NOTE]
 > *Compatibile con Android 8.1+ e Linux (Ubuntu/Debian).*
 > *Se al primo avvio ricevi `ERR: 408 Request Timeout`, riavvia il bot: si connetterà correttamente al secondo tentativo.*
 > *Il bot usa **ESModules** — assicurati di usare Node.js 18+.*
