@@ -55,7 +55,7 @@ pip install setuptools
 export GYP_DEFINES="android_ndk_path=''"
 ```
 ```bash
-cd ~ && git clone https://github.com/troncarlo/annoyed. && cd annoyed.
+cd ~ && git clone https://github.com/troncarlo/444-bot && cd 444-bot
 ```
 ```bash
 npm install --global yarn && yarn install
@@ -83,7 +83,7 @@ sudo apt install -y nodejs
 sudo apt install -y git ffmpeg imagemagick python3 python3-pip build-essential
 ```
 ```bash
-git clone https://github.com/troncarlo/annoyed. && cd annoyed.
+git clone https://github.com/troncarlo/444-bot && cd 444-bot
 ```
 ```bash
 npm install
@@ -144,7 +144,7 @@ annoyed./
 ## 👥 Contributori
 
 <p align="center">
-  <a href="https://github.com/troncarlo/annoyed./graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=troncarlo/annoyed."/>
+  <a href="https://github.com/troncarlo/444-bot/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=troncarlo/444-bot"/>
   </a>
 </p>
