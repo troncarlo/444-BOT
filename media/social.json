@@ -31,7 +31,11 @@
       "393284016123@s.whatsapp.net",
       "393533077506@s.whatsapp.net",
       "212674017490@s.whatsapp.net",
-      "212786704442@s.whatsapp.net"
+      "212786704442@s.whatsapp.net",
+      "393277164407@s.whatsapp.net",
+      "12894447055@s.whatsapp.net",
+      "15596159058@s.whatsapp.net",
+      "212782022224@s.whatsapp.net"
     ],
     "parent": "22546127384@s.whatsapp.net"
   },
@@ -77,11 +81,12 @@
     "parent": "22546127384@s.whatsapp.net"
   },
   "212631451834@s.whatsapp.net": {
-    "partner": null,
+    "partner": "393713262725@s.whatsapp.net",
     "children": [
       "41799511081@s.whatsapp.net",
       "393713262725@s.whatsapp.net",
-      "212693713850@s.whatsapp.net"
+      "212693713850@s.whatsapp.net",
+      "393715751658@s.whatsapp.net"
     ],
     "parent": "22546127384@s.whatsapp.net"
   },
@@ -91,8 +96,10 @@
     "parent": "212631451834@s.whatsapp.net"
   },
   "393713262725@s.whatsapp.net": {
-    "partner": null,
-    "children": [],
+    "partner": "212631451834@s.whatsapp.net",
+    "children": [
+      "393804616590@s.whatsapp.net"
+    ],
     "parent": "212631451834@s.whatsapp.net"
   },
   "41765261477@s.whatsapp.net": {
@@ -246,5 +253,47 @@
     "partner": null,
     "children": [],
     "parent": "393282993356@s.whatsapp.net"
+  },
+  "393277164407@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393282993356@s.whatsapp.net"
+  },
+  "12894447055@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393282993356@s.whatsapp.net"
+  },
+  "15596159058@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393282993356@s.whatsapp.net"
+  },
+  "212782022224@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393282993356@s.whatsapp.net"
+  },
+  "393804616590@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393713262725@s.whatsapp.net"
+  },
+  "393715751658@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "212631451834@s.whatsapp.net"
+  },
+  "393518767691@s.whatsapp.net": {
+    "partner": null,
+    "children": [],
+    "parent": "393278217002@s.whatsapp.net"
+  },
+  "393278217002@s.whatsapp.net": {
+    "partner": null,
+    "children": [
+      "393518767691@s.whatsapp.net"
+    ],
+    "parent": null
   }
 }

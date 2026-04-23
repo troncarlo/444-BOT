@@ -1,10 +1,10 @@
 {
   "name": "annoyed-bot",
   "version": "1.6.0",
-  "description": "WhatsApp Bot creato da zero da @troncarlo",
+  "description": "best wazap bot by @troncarlo",
   "main": "annoyed.js",
   "type": "module",
-  "author": "annoyed",
+  "author": "troncarlo",
   "license": "Apache-2.0",
   "scripts": {
     "start": "node annoyed.js",
