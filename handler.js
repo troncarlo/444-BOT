@@ -17,6 +17,51 @@ import { downloadContentFromMessage } from '@realvare/baileys'
 let dbDirty = false
 let isSaving = false
 
+const cmdSpamTracker = {}
+
+const cmdSpamBlocked = {}
+
+const SPAM_LIMIT    = 5      
+const SPAM_WINDOW   = 10_000  
+const SPAM_DURATION = 60_000  
+
+async function checkCmdSpam(jid, sender, conn, m) {
+    const now = Date.now()
+
+    if (!cmdSpamBlocked[jid]) cmdSpamBlocked[jid] = {}  
+    if (!cmdSpamTracker[jid]) cmdSpamTracker[jid] = {}
+
+    const blockedUntil = cmdSpamBlocked[jid][sender]
+    if (blockedUntil) {
+        if (now < blockedUntil) return true  
+        delete cmdSpamBlocked[jid][sender] 
+    }
+
+
+    const tracker = cmdSpamTracker[jid][sender] || { count: 0, firstTs: now }
+    if (now - tracker.firstTs > SPAM_WINDOW) {
+        tracker.count = 1
+        tracker.firstTs = now
+    } else {
+        tracker.count += 1
+    }
+    cmdSpamTracker[jid][sender] = tracker
+
+    if (tracker.count >= SPAM_LIMIT) {
+        cmdSpamBlocked[jid][sender] = now + SPAM_DURATION
+        delete cmdSpamTracker[jid][sender]
+        const senderNum = sender.split('@')[0]
+        await conn.sendMessage(jid, {
+         text: `╭┈➤ 『 🚫 』 *ANTISPAM COMANDI*\n┆  『 👤 』 @${senderNum}\n┆  『 ⏱️ 』 Troppi comandi in poco tempo!\n┆  『 🔒 』 Bloccato per *60 secondi* in questo gruppo.\n╰┈➤ \`annoyed system\``,
+         mentions: [sender],
+         contextInfo: { ...global.newsletter().contextInfo }
+        }, { quoted: m })
+    }
+
+    return false
+}
+
+
 const decodeJid = (jid) => {
     if (!jid) return jid
     if (/:\d+@/gi.test(jid)) {
@@ -121,16 +166,12 @@ function getOwnerJids() {
     return { dynamicOwners }
 }
 
-function getModeratori() {
-    const modPath = path.join(process.cwd(), 'media', 'moderatori.json')
-    try {
-        const data = JSON.parse(fs.readFileSync(modPath, 'utf-8'))
-        return data.moderatori || []
-    } catch (e) { return [] }
+function getGroupModeratori(jid) {
+    return global.db?.data?.groups?.[jid]?.moderatori || []
 }
 
-function isModeratore(jid) {
-    const mods = getModeratori()
+function isModeratore(jid, groupJid) {
+    const mods = getGroupModeratori(groupJid)
     const normalized = decodeJid(jid)
     return mods.some(m => decodeJid(m) === normalized)
 }
@@ -354,7 +395,7 @@ export default async function handler(conn, chatUpdate) {
         m.senderJid = sender
         const { dynamicOwners } = getOwnerJids()
         const isOwner = isOwnerJid(sender, dynamicOwners)
-        const isMod = !isOwner && isModeratore(sender)
+        const isMod = !isOwner && isGroup ? isModeratore(sender, jid) : false
 
         if (!isGroup) isAdmin = isOwner
 
@@ -419,6 +460,11 @@ export default async function handler(conn, chatUpdate) {
         const args = messageText.slice(usedPrefix.length).trim().split(/ +/)
         const command = args.shift().toLowerCase()
         const text = args.join(' ')
+
+        if (isGroup) {
+            if (await checkCmdSpam(jid, sender, conn, m)) return
+        }
+
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
             if (!plugin) continue

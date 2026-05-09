@@ -34,7 +34,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner }) => {
     },
     {
       name: "quick_reply",
-      buttonParamsJson: JSON.stringify({ display_text: "👛 PROFILO", id: `${usedPrefix}profilo @${m.sender.split('@')[0]}` })
+      buttonParamsJson: JSON.stringify({ display_text: "🔰 MODERATORI", id: `${usedPrefix}menumod` })
     }
   ];
 

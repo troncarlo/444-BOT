@@ -3,7 +3,7 @@ import { spawn } from 'child_process'
 let handler = async (m, { conn, text }) => {
     if (!text) return 
     
-    let messageId = null
+    let messageKey = null
     let output = ''
     let lastUpdate = Date.now()
 
@@ -12,11 +12,11 @@ let handler = async (m, { conn, text }) => {
     const sendUpdate = async (data) => {
         output += data
         if (Date.now() - lastUpdate > 1500) {
-            if (!messageId) {
+            if (!messageKey) {
                 let { key } = await conn.sendMessage(m.chat, { text: output }, { quoted: m })
-                messageId = key
+                messageKey = key
             } else {
-                await conn.editMessage(m.chat, messageId, output)
+                await conn.sendMessage(m.chat, { text: output, edit: messageKey })
             }
             lastUpdate = Date.now()
         }
@@ -26,10 +26,10 @@ let handler = async (m, { conn, text }) => {
     shell.stderr.on('data', (data) => sendUpdate(data.toString()))
 
     shell.on('close', async () => {
-        if (!messageId) {
+        if (!messageKey) {
             await conn.sendMessage(m.chat, { text: output }, { quoted: m })
         } else {
-            await conn.editMessage(m.chat, messageId, output)
+            await conn.sendMessage(m.chat, { text: output, edit: messageKey })
         }
     })
 }
