@@ -5,11 +5,9 @@ const API_BASE = 'http://bereshit.ddns.net:3000'
 const handler = async (m, { conn, usedPrefix }) => {
     const jid = m.sender
 
-    // ---- Animazione "digitando..." ----
     await conn.sendPresenceUpdate('composing', m.chat)
 
     try {
-        // Chiede al server di generare un codice OTP per questo jid
         const res = await fetch(`${API_BASE}/api/internal/generate-auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -23,7 +21,6 @@ const handler = async (m, { conn, usedPrefix }) => {
         }
 
         const code = data.code
-        // Formatta il codice come "483 921"
         const codeFmt = code.slice(0, 3) + ' ' + code.slice(3)
 
         const txt =

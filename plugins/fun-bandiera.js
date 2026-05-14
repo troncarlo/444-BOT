@@ -96,11 +96,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isAdmin }) => {
                 const timeBonus = timeTaken <= 10 ? 20 : timeTaken <= 20 ? 10 : 0
                 xp += timeBonus
                 
-                // Aggiornamento XP nel database globale
                 global.db.data.users[m.sender] = global.db.data.users[m.sender] || { exp: 0 }
                 global.db.data.users[m.sender].exp += xp
 
-                // Aggiornamento Denaro nel wallet.json
                 let wallet = getWallet()
                 if (!wallet[m.sender]) wallet[m.sender] = { money: 0, bank: 0 }
                 wallet[m.sender].money += money
