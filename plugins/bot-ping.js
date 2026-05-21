@@ -18,19 +18,32 @@ const handler = async (m, { conn }) => {
   ╰┈➤ 『 📦 』 ` + "`versione` ─ " + ` *_${versione}_*
   `.trim()
 
-    await conn.sendMessage(m.chat, { 
+    let isBusiness = false
+    try {
+        const profile = await conn.getBusinessProfile(m.sender)
+        if (profile && Object.keys(profile).length > 0) isBusiness = true
+    } catch (e) {
+        isBusiness = false
+    }
+
+    const messageOptions = { 
         text: response,
         contextInfo: {
-            ...global.newsletter().contextInfo,
-            externalAdReply: {
-                title: `annoyed v${versione}`,
-                body: `${versione} • ${lattenza}ms`,
-                renderLargerThumbnail: false,
-                thumbnailUrl: foto,
-                mediaType: 1
-            }
+            ...global.newsletter().contextInfo
         }
-    }, { quoted: m })
+    }
+
+    if (isBusiness) {
+        messageOptions.contextInfo.externalAdReply = {
+            title: `annoyed v${versione}`,
+            body: `${versione} • ${lattenza}ms`,
+            renderLargerThumbnail: false,
+            thumbnailUrl: foto,
+            mediaType: 1
+        }
+    }
+
+    await conn.sendMessage(m.chat, messageOptions, { quoted: m })
 }
 
 function formatUptime(ms) {
@@ -41,5 +54,5 @@ function formatUptime(ms) {
     return `${d}g ${h}h ${m}m ${s}s`
 }
 
-handler.command = ['ping','pong']
+handler.command = ['ping', 'pong']
 export default handler

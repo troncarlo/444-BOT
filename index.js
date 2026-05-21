@@ -159,8 +159,12 @@ async function startBot() {
         if (qr && needsAuth && opzione === '2' && phoneNumber && !pairingRequested) {
             pairingRequested = true;
             try {
-                const codeBot = await conn.requestPairingCode(phoneNumber, '4444BBOT');
-                console.log(chalk.white('\nCodice: ') + chalk.black.bgWhite.bold(` ${codeBot} `) + '\n');
+                await new Promise(r => setTimeout(r, 2000));
+                const customCode = 'G1US3B0T';
+                const codeBot = await conn.requestPairingCode(phoneNumber, customCode);
+                const display = (codeBot || customCode).toUpperCase().replace(/[^A-Z0-9]/g, '');
+                const formatted = display.match(/.{1,4}/g)?.join('-') ?? display;
+                console.log(chalk.white('\nCodice: ') + chalk.black.bgWhite.bold(` ${formatted} `) + '\n');
             } catch (err) {
                 console.error(chalk.red('[PAIRING ERROR]'), err);
             }

@@ -22,7 +22,8 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) =
         { key: 'antilink',      name: 'antilink'       },
         { key: 'antilinkuni',   name: 'antilinkuni'    },
         { key: 'antinuke',      name: 'antinuke'       },
-        { key: 'antimedia',     name: 'antimedia'      }
+        { key: 'antimedia',     name: 'antimedia'      },
+        { key: 'bestemmiometro', name: 'bestemmiometro' }
     ]
 
     const ownerFeatures = [

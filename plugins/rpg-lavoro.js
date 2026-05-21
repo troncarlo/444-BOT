@@ -23,10 +23,28 @@ const formatTime = (ms) => {
 
 const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
+function detectDevice(msgID) {
+    if (!msgID) return 'unknown'
+    if (/^[a-zA-Z]+-[a-fA-F0-9]+$/.test(msgID)) return 'bot'
+    if (msgID.startsWith('false_') || msgID.startsWith('true_')) return 'web'
+    if (msgID.startsWith('3EB0') && /^[A-Z0-9]+$/.test(msgID)) return 'web'
+    if (msgID.includes(':')) return 'desktop'
+    if (/^[A-F0-9]{32}$/i.test(msgID)) return 'android'
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(msgID)) return 'ios'
+    if (/^[A-Z0-9]{20,25}$/i.test(msgID) && !msgID.startsWith('3EB0')) return 'ios'
+    return 'unknown'
+}
+
 const lavori = [
     { nome: 'Spazzino', xpReq: 0, paga: [150, 300], xpGained: [10, 20] },
+    { nome: 'Cameriere', xpReq: 50, paga: [200, 400], xpGained: [15, 25] },
+    { nome: 'Barista', xpReq: 120, paga: [280, 500], xpGained: [20, 35] },
     { nome: 'Meccanico', xpReq: 250, paga: [400, 750], xpGained: [30, 60] },
-    { nome: 'Programmatore', xpReq: 1000, paga: [1000, 2500], xpGained: [80, 150] }
+    { nome: 'Elettricista', xpReq: 500, paga: [600, 1100], xpGained: [45, 80] },
+    { nome: 'Programmatore', xpReq: 1000, paga: [1000, 2500], xpGained: [80, 150] },
+    { nome: 'Hacker', xpReq: 2500, paga: [2200, 5000], xpGained: [120, 240] },
+    { nome: 'Broker', xpReq: 5000, paga: [4500, 9000], xpGained: [200, 400] },
+    { nome: 'Imprenditore', xpReq: 10000, paga: [8000, 18000], xpGained: [350, 700] }
 ]
 
 let handler = async (m, { conn, text, usedPrefix, command, args }) => {
@@ -58,34 +76,48 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
                 txt += `┆  ${check} *${l.nome}* (${l.xpReq} XP)\n`
             })
             txt += `┆\n`
-            txt += `┆  *Clicca un bottone per scegliere!*\n`
+            txt += `┆  *Scegli un impiego dalla lista!*\n`
             txt += `╰┈➤ 『 📦 』 \`annoyed system\``
 
-            const buttons = lavori.map(l => ({
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({ 
-                    display_text: `${l.nome.toUpperCase()} (${l.xpReq} XP)`, 
-                    id: `${usedPrefix}lavoro scegli ${l.nome.toLowerCase()}` 
-                })
-            }))
+            const msgID = m.id || m.key?.id
+            const deviceType = detectDevice(msgID)
 
-            const msg = {
-                viewOnceMessage: {
-                    message: {
-                        interactiveMessage: {
-                            body: { text: txt },
-                            footer: { text: "annoyed system" },
-                            nativeFlowMessage: { buttons },
-                            contextInfo: { 
-                                mentionedJid: [jid],
-                                stanzaId: "job_menu"
-                            }
-                        }
-                    }
-                }
+            if (deviceType === 'ios') {
+                const buttons = lavori.map(l => ({
+                    buttonId: `${usedPrefix}lavoro scegli ${l.nome.toLowerCase()}`,
+                    buttonText: { displayText: `${l.nome.toUpperCase()} (${l.xpReq} XP)` },
+                    type: 1
+                }))
+
+                return await conn.sendMessage(m.chat, {
+                    text: txt,
+                    buttons: buttons,
+                    headerType: 1,
+                    mentions: [jid]
+                }, { quoted: m })
+            } else {
+                const rows = lavori.map(l => ({
+                    id: `${usedPrefix}lavoro scegli ${l.nome.toLowerCase()}`,
+                    title: `${userLvl.xp >= l.xpReq ? '✅' : '❌'} ${l.nome}`,
+                    description: `Paga: €${l.paga[0]}-${l.paga[1]} | req: ${l.xpReq} XP`
+                }))
+
+                return await conn.sendMessage(m.chat, {
+                    interactiveButtons: [{
+                        name: "single_select",
+                        buttonParamsJson: JSON.stringify({
+                            title: "『 📲 』𝐬𝐜𝐞𝐠𝐥𝐢 𝐥𝐚𝐯𝐨𝐫𝐨",
+                            sections: [{
+                                title: "𝘮𝘦𝘯𝘶 𝘱𝘳𝘰𝘧𝘦𝘴𝘴𝘪𝘰𝘯𝘪",
+                                rows: rows
+                            }]
+                        })
+                    }],
+                    text: txt,
+                    title: "◯  𐙚  *──  j o b s  ──*",
+                    footer: "annoyed system"
+                }, { quoted: m })
             }
-
-            return await conn.relayMessage(m.chat, msg, {})
         }
 
         if (args[0] === 'scegli') {

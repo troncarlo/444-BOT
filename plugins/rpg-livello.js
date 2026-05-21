@@ -43,14 +43,23 @@ const handler = async (m, { conn }) => {
         userRpg.lastMsgCount = totalMsgs
     }
 
+    const getXpNeededForLevel = (lvl) => {
+        let total = 0
+        for (let i = 1; i < lvl; i++) {
+            total += i * 50
+        }
+        return total
+    }
+
     let levelUp = false
-    let xpNeeded = userRpg.level * 50
-    
-    while (userRpg.xp >= xpNeeded) {
-        userRpg.xp -= xpNeeded
-        userRpg.level += 1
-        xpNeeded = userRpg.level * 50
-        levelUp = true
+    while (true) {
+        let nextLevelXpThreshold = getXpNeededForLevel(userRpg.level + 1)
+        if (userRpg.xp >= nextLevelXpThreshold) {
+            userRpg.level += 1
+            levelUp = true
+        } else {
+            break
+        }
     }
 
     saveDb(databasePath, livelliDb)
@@ -64,7 +73,13 @@ const handler = async (m, { conn }) => {
         pfp = 'https://i.ibb.co/6fs5B1V/triplo3.jpg' 
     }
 
-    let progress = (userRpg.xp / xpNeeded) * 100
+    const currentLevelBaseXp = getXpNeededForLevel(userRpg.level)
+    const nextLevelTargetXp = getXpNeededForLevel(userRpg.level + 1)
+    
+    const xpInCurrentLevel = userRpg.xp - currentLevelBaseXp
+    const xpRequiredForCurrentLevel = nextLevelTargetXp - currentLevelBaseXp
+
+    let progress = (xpInCurrentLevel / xpRequiredForCurrentLevel) * 100
     if (progress > 100) progress = 100
     if (progress < 0 || isNaN(progress)) progress = 0
 
@@ -92,7 +107,7 @@ const handler = async (m, { conn }) => {
                 <div class="progress-box">
                     <div class="bar-bg"><div class="bar-fill"></div></div>
                     <div class="stats-text">
-                        <span>XP <span class="highlight">${userRpg.xp} / ${xpNeeded}</span></span>
+                        <span>XP <span class="highlight">${userRpg.xp} / ${nextLevelTargetXp}</span></span>
                         <span class="highlight">${Math.floor(progress)}%</span>
                     </div>
                 </div>
@@ -113,8 +128,8 @@ const handler = async (m, { conn }) => {
         })
 
         const caption = levelUp 
-            ? `╭┈  『 👤 』 \`${nomeUtente}\`\n┆  『 ✨ 』 level up\n┆  ╰➤  _*nuovo livello*_ ─ *${userRpg.level}*\n┆  ╰➤  _*xp attuali*_ ─ *${userRpg.xp}*\n╰┈➤ 『 🆙 』 \`congratulazioni\``
-            : `╭┈  『 👤 』 \`${nomeUtente}\`\n┆  『 📊 』 rpg stats\n┆  ╰➤  _*livello*_ ─ *${userRpg.level}*\n┆  ╰➤  _*xp*_ ─ *${userRpg.xp}/${xpNeeded}*\n┆  ╰➤  *_mancanti_* ─ *${xpNeeded - userRpg.xp}*\n╰┈➤ 『 🎮 』 \`rpg system\``
+            ? `╭┈  『 👤 』 \`${nomeUtente}\`\n┆  『 ✨ 』 level up\n┆  ╰➤  _*nuovo livello*_ ─ *${userRpg.level}*\n┆  ╰➤  _*xp totali*_ ─ *${userRpg.xp}*\n╰┈➤ 『 🆙 』 \`congratulazioni\``
+            : `╭┈  『 👤 』 \`${nomeUtente}\`\n┆  『 📊 』 rpg stats\n┆  ╰➤  _*livello*_ ─ *${userRpg.level}*\n┆  ╰➤  _*xp*_ ─ *${userRpg.xp}/${nextLevelTargetXp}*\n┆  ╰➤  *_mancanti_* ─ *${nextLevelTargetXp - userRpg.xp}*\n╰┈➤ 『 🎮 』 \`rpg system\``
 
         await conn.sendMessage(m.chat, { 
             image: Buffer.from(response.data), 

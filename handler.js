@@ -1,6 +1,7 @@
 import { smsg } from './lib/simple.js'
 import chalk from 'chalk'
 import print from './lib/print.js'
+import { prima as bestemmiometro } from './funzioni/admin/bestemmiometro.js'
 import { prima as antiPrivato } from './funzioni/owner/antiprivato.js'
 import rispondiGemini from './funzioni/owner/rispondi.js'
 import { antilink } from './funzioni/admin/antilink.js'
@@ -18,7 +19,6 @@ let dbDirty = false
 let isSaving = false
 
 const cmdSpamTracker = {}
-
 const cmdSpamBlocked = {}
 
 const SPAM_LIMIT    = 5      
@@ -36,7 +36,6 @@ async function checkCmdSpam(jid, sender, conn, m) {
         if (now < blockedUntil) return true  
         delete cmdSpamBlocked[jid][sender] 
     }
-
 
     const tracker = cmdSpamTracker[jid][sender] || { count: 0, firstTs: now }
     if (now - tracker.firstTs > SPAM_WINDOW) {
@@ -60,7 +59,6 @@ async function checkCmdSpam(jid, sender, conn, m) {
 
     return false
 }
-
 
 const decodeJid = (jid) => {
     if (!jid) return jid
@@ -280,6 +278,22 @@ export default async function handler(conn, chatUpdate) {
         if (m.quoted) fixDownload(m.quoted)
         const msgType = Object.keys(m.message)[0]
         const msgContent = m.message[msgType]
+        
+        let interactiveId = ''
+        try {
+            const interactiveMsg = m.message.interactiveResponseMessage
+            if (interactiveMsg) {
+                const nativeFlow = interactiveMsg.nativeFlowResponseMessage
+                if (nativeFlow?.paramsJson) {
+                    const parsed = JSON.parse(nativeFlow.paramsJson)
+                    interactiveId = parsed?.id || ''
+                }
+                if (!interactiveId) {
+                    interactiveId = interactiveMsg.body?.text || ''
+                }
+            }
+        } catch {}
+        
         let txt = m.message.conversation ||
                   m.message.extendedTextMessage?.text ||
                   m.message.imageMessage?.caption ||
@@ -287,7 +301,7 @@ export default async function handler(conn, chatUpdate) {
                   m.message.buttonsResponseMessage?.selectedButtonId ||
                   m.message.listResponseMessage?.singleSelectReply?.selectedRowId ||
                   m.message.templateButtonReplyMessage?.selectedId ||
-                  m.message.interactiveResponseMessage?.body?.text ||
+                  interactiveId ||
                   m.message.pollCreationMessageV3?.name || 
                   m.message.pollCreationMessageV2?.name ||
                   msgContent?.text ||
@@ -420,12 +434,15 @@ export default async function handler(conn, chatUpdate) {
         if (isGroup) {
             if (!global.db.data.groups[jid]) global.db.data.groups[jid] = { messages: 0, antilink: true, antiwhatsapp: true, soloadmin: false }
             global.db.data.groups[jid].messages += 1
+            
+            await bestemmiometro(m, { conn }).catch(e => console.error(e))
+            
             if (await antilink(m, { conn, isAdmin, isBotAdmin, users: global.db.data.users })) return
             antiwa(m, { conn, isAdmin, isBotAdmin }).catch(() => {})
             if (global.db.data.groups[jid].antimedia) {
                 if (await antimedia(m, { conn, isAdmin, isBotAdmin })) return
             }
-            if (await soloadmin(m, { isAdmin, isOwner }) === false) return
+            if (await soloadmin(m, { isAdmin, isOwner, isMod }) === false) return
         }
 
         await print(m, conn)
