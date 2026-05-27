@@ -4,14 +4,14 @@
 
 ![Node](https://img.shields.io/badge/Node.js-18%2B-green?style=flat-square&logo=node.js)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Version](https://img.shields.io/badge/version-1.7.1-purple?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.7.2-purple?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Linux-lightgrey?style=flat-square)
 ---
 
 > [!NOTE]
 > - *Compatibile con Android 8.1+ e Linux (Ubuntu/Debian).*
-> - *Se al primo avvio ricevi `ERR: 408 Request Timeout`, riavvia il bot: si connetterà correttamente al secondo tentativo.*
-> - *Il bot usa **ESModules** — assicurati di usare Node.js 18+.*
+> - *Il bot usa **ESModules** — è necessario nodejs versione >18*
+> - *Per alcuni comandi è necessaria la libreria [@realvare/baileys](https://npmjs.com/package/@realvare/baileys) aggiornata alla versione 1.0.6 altrimenti non funzioneranno.*
 
 ---
 
@@ -38,8 +38,8 @@ Dopo l'installazione, modifica `config.js` e inserisci le tue chiavi in `global.
 - Android 8.1+ (escluse versioni Go)
 - 4 GB di RAM
 - 32 GB di memoria interna
-- [Termux dal F-Droid](https://f-droid.org/repo/com.termux_1022.apk)
-- Un secondo dispositivo per scansionare il QR code
+- [Termux](https://f-droid.org/repo/com.termux_1022.apk)
+
 ```bash
 termux-setup-storage && termux-wake-lock
 ```

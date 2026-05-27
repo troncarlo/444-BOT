@@ -64,7 +64,7 @@ const printHeader = () => {
     console.log();
 };
 
-const newsletterJid = '120363408303414353@newsletter';
+const newsletterJid = '120363409213933858@newsletter';
 
 let isRestarting = false;
 

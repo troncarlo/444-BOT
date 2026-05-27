@@ -110,7 +110,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                 mentionedJid: [target1, target2],
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363321520110307@newsletter',
+                    newsletterJid: '120363409213933858@newsletter',
                     newsletterName: global.bot,
                     serverMessageId: -1
                 },

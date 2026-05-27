@@ -17,7 +17,6 @@ const handler = async (m, { conn, text, args, usedPrefix, command }) => {
         const owner = res.owner || ''
         const creation = res.creation ? new Date(res.creation * 1000).toLocaleString('it-IT') : 'Sconosciuta'
         
-        // Verifica se il founder è admin (se i dati dei partecipanti sono disponibili)
         let founderStatus = 'Dato non disponibile'
         if (res.participants) {
             const adminParticipant = res.participants.find(p => p.id === owner)
@@ -36,12 +35,10 @@ const handler = async (m, { conn, text, args, usedPrefix, command }) => {
         txt += `┆  ${description}\n`
         txt += `╰┈➤ 『 📦 』 \`annoyed system\``
 
-        // Recupero foto profilo del gruppo (se presente)
-        let pp = 'https://telegra.ph/file/241d774889600a7479836.jpg' // Default se fallisce
+        let pp = 'https://telegra.ph/file/241d774889600a7479836.jpg' 
         try {
             pp = await conn.profilePictureUrl(id, 'image')
         } catch {
-            // Se non accessibile, proviamo a usare quella dell'invito se Baileys la fornisce
             if (res.thumbVcard) pp = res.thumbVcard
         }
 

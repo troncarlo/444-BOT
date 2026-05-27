@@ -62,7 +62,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
                         footer: { text: "" },
                         nativeFlowMessage: { buttons: buttons },
                         contextInfo: {
-                            ...(extra.contextInfo || {}),
                             mentionedJid: [m.sender],
                             stanzaId: m.key.id,
                             participant: m.sender,
@@ -76,12 +75,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     if (action === 'code') {
-        const content = fs.readFileSync(pluginPath, 'utf-8')
-        return conn.sendMessage(m.chat, {
-            text: content,
-            ...extra
-        }, { quoted: q })
-    }
+    const content = fs.readFileSync(pluginPath, 'utf-8')
+    return conn.sendCodeBlock(m.chat, content, m)
+    }       
 
     if (action === 'file') {
         const content = fs.readFileSync(pluginPath)
@@ -89,7 +85,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             document: content,
             mimetype: 'application/javascript',
             fileName: fileName,
-            caption: `╭┈  『 📦 』 \`file\` ─ *${fileName}*\n╰┈➤ Ecco il file sorgente.`,
+            caption: ``,
             ...extra
         }, { quoted: q })
     }

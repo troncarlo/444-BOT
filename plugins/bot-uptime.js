@@ -3,7 +3,7 @@ let handler = async (m, { conn }) => {
     let uptime = clockString(_uptime)
     
     const newsletterData = typeof global.newsletter === 'function' ? global.newsletter() : { contextInfo: {} }
-    const newsletterJid = newsletterData?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterJid || "120363305149340738@newsletter"
+    const newsletterJid = newsletterData?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterJid || "120363409213933858@newsletter"
 
     let message = {
         interactiveMessage: {

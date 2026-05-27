@@ -39,8 +39,10 @@ let handler = async (m, { conn, usedPrefix }) => {
     let name = m.pushName || (conn.getName ? await conn.getName(m.sender) : m.sender.split('@')[0]);
 
     let caption = `╭┈   『 🌸 』 \`ciao\` ─  *${name}*
+┆       
 ┆   『 🕒 』 \`uptime\` ─  *_${uptime}_*
 ┆   『 👥 』 \`utenti\` ─  *_${totalreg}_*
+┆  
 ╰┈➤ 『 📦 』 \`vs\` ─  *_${botVersion}_*`.trim();
 
     const msgID = m.id || m.key?.id;
