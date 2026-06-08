@@ -1,41 +1,27 @@
-const modPath = './media/moderatori.json'
-import fs from 'fs'
+let handler = async (m, { conn, isGroup }) => {
+    if (!isGroup) return m.reply('_Questo comando funziona solo nei gruppi._')
 
-function getMods() {
-    try { 
-        return JSON.parse(fs.readFileSync(modPath, 'utf-8')) 
-    } catch { 
-        return { moderatori: [] } 
-    }
-}
+    const jid = m.chat
+    const mods = global.db.data.groups[jid]?.moderatori
 
-let handler = async (m, { conn }) => {
-    const data = getMods()
-    const mods = data.moderatori
+    if (!mods || mods.length === 0) return m.reply('_Nessun moderatore impostato in questo gruppo._')
 
-    if (!mods || mods.length === 0) {
-        return m.reply('_Nessun moderatore in lista._')
-    }
-
-    let txt = `╭┈➤ 『 🛡️ 』 *LISTA MODERATORI*\n`
-    txt += `┆  『 👥 』 *TOTALE:* ${mods.length}\n`
-    txt += `┆\n`
-    
-    mods.forEach((jid, i) => {
-        txt += `┆  ${i + 1}. @${jid.split('@')[0]}\n`
+    let txt = `╭┈➤ 『 🔰 』 *LISTA MODERATORI*\n`
+    mods.forEach((modJid, i) => {
+        txt += `┆  ${i + 1}. @${modJid.split('@')[0]}\n`
     })
-    
-    txt += `╰┈➤ 『 📦 』 \`annoyed system\``
+    txt += `╰┈➤ 『 📦 』 \`totale mod:\` *${mods.length}*`
 
-    await conn.sendMessage(m.chat, { 
-        text: txt, 
-        mentions: mods 
+    await conn.sendMessage(m.chat, {
+        text: txt,
+        mentions: mods,
+        contextInfo: { ...global.newsletter().contextInfo }
     }, { quoted: m })
 }
 
-handler.help = ['listmod']
-handler.tags = ['owner', 'info']
-handler.command = ['listmod', 'mods']
-handler.mod = true
+handler.help = ['listamod']
+handler.tags = ['group']
+handler.command = ['listamod', 'mods', 'listmod']
+handler.group = true
 
 export default handler

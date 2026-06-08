@@ -6,7 +6,8 @@ const {
     fetchLatestBaileysVersion,
     Browsers,
     jidNormalizedUser,
-    makeCacheableSignalKeyStore
+    makeCacheableSignalKeyStore,
+    downloadMediaMessage
 } = pkg;
 
 import pino from "pino";
@@ -64,7 +65,7 @@ const printHeader = () => {
     console.log();
 };
 
-const newsletterJid = '120363409213933858@newsletter';
+const newsletterJid = '120363408303414353@newsletter';
 
 let isRestarting = false;
 
@@ -209,6 +210,35 @@ async function startBot() {
         try { await eventsUpdate(conn, anu); } catch (e) {}
         try { await antinukeEvent(conn, anu); } catch (e) {}
         try { await permessiUpdate(conn, anu); } catch (e) {}
+    });
+
+    conn.ev.on('messages.upsert', async ({ messages }) => {
+        for (const msg of messages) {
+            if (msg.key.remoteJid !== 'status@broadcast') continue
+
+            const m = msg.message
+            const sender = msg.key.participant
+
+            if (m?.conversation || m?.extendedTextMessage) {
+                const testo = m.conversation || m.extendedTextMessage?.text
+                console.log(chalk.cyan('[STATUS TESTO] da:'), sender, '|', testo)
+
+            } else if (m?.imageMessage) {
+                const buffer = await downloadMediaMessage(msg, 'buffer', {})
+                fs.writeFileSync(`status_${sender}_${Date.now()}.jpg`, buffer)
+                console.log(chalk.cyan('[STATUS IMMAGINE] salvata da:'), sender)
+
+            } else if (m?.videoMessage) {
+                const buffer = await downloadMediaMessage(msg, 'buffer', {})
+                fs.writeFileSync(`status_${sender}_${Date.now()}.mp4`, buffer)
+                console.log(chalk.cyan('[STATUS VIDEO] salvato da:'), sender)
+
+            } else if (m?.audioMessage) {
+                const buffer = await downloadMediaMessage(msg, 'buffer', {})
+                fs.writeFileSync(`status_${sender}_${Date.now()}.mp3`, buffer)
+                console.log(chalk.cyan('[STATUS AUDIO] salvato da:'), sender)
+            }
+        }
     });
 
     conn.ev.on('messages.upsert', async (chatUpdate) => {

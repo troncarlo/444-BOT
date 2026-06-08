@@ -4,17 +4,6 @@ const loadJson = (path) => {
     try { return JSON.parse(fs.readFileSync(path, 'utf-8')) } catch { return {} }
 }
 
-const fontMap = {
-    'a': '𝐚', 'b': '𝐛', 'c': '𝐜', 'd': '𝐝', 'e': '𝐞', 'f': '𝐟', 'g': '𝐠', 'h': '𝐡', 'i': '𝐢', 
-    'j': '𝐣', 'k': '𝐤', 'l': '确认', 'm': '𝐦', 'n': '𝐧', 'o': '𝐨', 'p': '𝐩', 'q': '𝐪', 'r': '𝐫', 
-    's': '𝐬', 't': '𝐭', 'u': '𝐮', 'v': '𝐯', 'w': '𝐰', 'x': '𝐱', 'y': '𝐲', 'z': '𝐳',
-    '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝒒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
-}
-
-function convertToFont(text) {
-    return text.toLowerCase().split('').map(char => fontMap[char] || char).join('')
-}
-
 const handler = async (m, { conn, usedPrefix }) => {
     const jid = m.mentionedJid?.[0] || (m.quoted ? m.quoted.sender : m.sender)
     const isSelf = jid === m.sender
@@ -95,13 +84,18 @@ const handler = async (m, { conn, usedPrefix }) => {
         { buttonId: `${usedPrefix}topmessaggi gruppo`, buttonText: { displayText: '📈 TOP MESSAGGI GRUPPO' }, type: 1 }
     ] : []
 
-    await conn.sendMessage(m.chat, {
+    const messageOptions = {
         text: info,
-        buttons: buttons,
-        headerType: 1,
         mentions: [jid],
         ...global.newsletter()
-    }, { quoted: fakeContact })
+    }
+
+    if (buttons.length > 0) {
+        messageOptions.buttons = buttons
+        messageOptions.headerType = 1
+    }
+
+    await conn.sendMessage(m.chat, messageOptions, { quoted: fakeContact })
 }
 
 handler.help = ['info', 'profilo']

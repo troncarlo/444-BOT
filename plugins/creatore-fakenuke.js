@@ -7,7 +7,8 @@ let handler = async (m, { conn, command }) => {
     if (['nuke', 'nike', 'niuk', 'nuche', 'niuc'].includes(command)) {
         global.db.data.groups[m.chat].backup_nuke = groupName
         
-        let newName = `${groupName} | SVT BY GIUSE`
+        let botName = global.bot || '444bot'
+        let newName = `${groupName} | SVT BY ${botName.toUpperCase()}`
         try {
             await conn.groupUpdateSubject(m.chat, newName)
             await conn.groupSettingUpdate(m.chat, 'announcement')
@@ -16,9 +17,15 @@ let handler = async (m, { conn, command }) => {
         await conn.sendMessage(m.chat, { text: `vi ho fottuti🫰` }, { quoted: m })
         
         await delay(1000)
+
+        let groupInviteCode = ''
+        try {
+            groupInviteCode = await conn.groupInviteCode(m.chat)
+        } catch (e) {}
+        const currentGroupLink = groupInviteCode ? `https://chat.whatsapp.com/${groupInviteCode}` : 'Impossibile recuperare il link.'
         
         await conn.sendMessage(m.chat, { 
-            text: `TUTTI QUI:\nhttps://chat.whatsapp.com/H3fxuz8ryMhIgfUEGdrDfI` 
+            text: `TUTTI QUI:\n${currentGroupLink}` 
         }, { quoted: m })
         
     } else if (command === 'risparmia') {
@@ -43,6 +50,5 @@ handler.command = /^(nuke|nike|niuc|niuk|nuche|risparmia)$/i
 handler.admin = true
 handler.group = true
 handler.botAdmin = true
-handler.owner = true
 
 export default handler

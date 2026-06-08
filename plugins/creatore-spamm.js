@@ -9,24 +9,24 @@ handler.before = async function (m, { conn, participants, isOwner }) {
         let users = participants.map(u => u.id)
         let msg = `ENTRATE TUTTI QUI:
 
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L
-https://chat.whatsapp.com/CyGEgA15tDI3meFKohFu2L`
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx
+https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx`
 
         for (let i = 0; i < 5; i++) {
             await conn.sendMessage(m.chat, { text: msg, mentions: users }, { quoted: m })

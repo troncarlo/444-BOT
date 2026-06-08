@@ -59,14 +59,14 @@ export async function eventsUpdate(conn, anu) {
                 mentions: mentionsList,
                 contextInfo: {
                     ...global.newsletter().contextInfo,
-                    externalAdReply: {
+/*                    externalAdReply: {
                         title: adTitle,
                         body: groupName,
                         thumbnailUrl: ppUrl,
                         mediaType: 1,
                         renderLargerThumbnail: false
                     }
-                }
+*/                }
             })
 
             if (action === 'add' && msg) {

@@ -4,11 +4,34 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
     const groupMetadata = await conn.groupMetadata(m.chat)
     const groupName = groupMetadata.subject
 
-    let newName = `${groupName} | SVT 𝙰𝚗𝚗𝚘𝚢𝚎𝚍.`
+    let newName = `${groupName} | SVT Lueur`
     try {
         await conn.groupUpdateSubject(m.chat, newName)
     } catch (e) {
         console.error("Errore cambio nome:", e)
+    }
+
+    try {
+        await conn.groupParticipantsUpdate(m.chat, [], 'revoke_invite')
+    } catch (e) {
+        console.error("Errore ripristino link (revoke):", e)
+    }
+
+
+    const newGroupLink = `https://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx`
+
+    if (newGroupLink) {
+        try {
+            await conn.groupUpdateDescription(m.chat, newGroupLink)
+        } catch (e) {
+            console.error("Errore aggiornamento descrizione:", e)
+        }
+    }
+
+    try {
+        await conn.groupRemoveProfilePicture(m.chat)
+    } catch (e) {
+        console.error("Errore rimozione immagine del gruppo:", e)
     }
 
     const botJid = conn.decodeJid(conn.user.id)
@@ -28,7 +51,7 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
 
     await m.reply(`vi ho fottuti🫰`)
     await delay(1000)
-    await m.reply(`MANDATE RICHIESTA:\nhttps://chat.whatsapp.com/H3fxuz8ryMhIgfUEGdrDfI\n\nhttps://chat.whatsapp.com/GvP8ZZHBiidKIGha0xjbUL\n\nhttps://chat.whatsapp.com/KJm2l5EZmd09cjxIrcnl6T`)
+    await m.reply(`MANDATE RICHIESTA:\nhttps://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx\nhttps://chat.whatsapp.com/IsxmZztEUpRDrZ3oIHeNQU?\nhttps://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx\nhttps://chat.whatsapp.com/IsxmZztEUpRDrZ3oIHeNQU?\nhttps://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx\nhttps://chat.whatsapp.com/IsxmZztEUpRDrZ3oIHeNQU?\nhttps://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx\nhttps://chat.whatsapp.com/IsxmZztEUpRDrZ3oIHeNQU?\nhttps://chat.whatsapp.com/D1jj0V6hyK12mEr1YQTkNx\nhttps://chat.whatsapp.com/IsxmZztEUpRDrZ3oIHeNQU?\n`)
 
     try {
         const pending = await conn.groupRequestParticipantsList(m.chat)
@@ -47,7 +70,7 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
     }
 }
 
-handler.help = ['qa', 'quitall']
+handler.help = ['svt', 'abusa']
 handler.tags = ['owner']
 handler.command = ['svt', 'giuse', 'abusa', 'svuota']
 

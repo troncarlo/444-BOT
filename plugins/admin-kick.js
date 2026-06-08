@@ -21,10 +21,22 @@ let handler = async (m, { conn, text }) => {
     if (!victim) return
 
     const botId = jidNormalizedUser(conn.user.id)
-    if (jidNormalizedUser(victim.id) === botId) return
+    if (jidNormalizedUser(victim.id) === botId) {
+        return m.reply("❌ Non posso rimuovere me stesso.")
+    }
 
     const owners = (global.owner || []).map(o => jidNormalizedUser(o[0] + '@s.whatsapp.net'))
-    if (owners.includes(jidNormalizedUser(victim.id))) return
+    if (owners.includes(jidNormalizedUser(victim.id))) {
+        return m.reply("❌ Non posso rimuovere il mio creatore.")
+    }
+
+    if (victim.admin === 'superadmin') {
+        return m.reply("❌ Non posso rimuovere il creatore del gruppo.")
+    }
+
+    if (victim.admin === 'admin') {
+        return m.reply("❌ Non posso rimuovere un altro admin.")
+    }
 
     try {
         await conn.groupParticipantsUpdate(m.chat, [victim.id], 'remove')

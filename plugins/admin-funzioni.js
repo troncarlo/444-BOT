@@ -53,10 +53,10 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) =
 
         if (device === 'ios' || String(device).toLowerCase().includes('ios')) {
             let fallbackText = `╭┈   『 ⚙️ 』 \`pannello\` ─ *GESTIONE*\n╰┈➤ Usa *${usedPrefix}attiva* o *${usedPrefix}disattiva*\n\n`
-            fallbackText += `╭┈   『 🛡️ 』 \`impostazioni\`\n┆   『 👥 』 \`admin\`\n┆\n${adminBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`zykbot system\``
+            fallbackText += `╭┈   『 🛡️ 』 \`impostazioni\`\n┆   『 👥 』 \`admin\`\n┆\n${adminBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`444bot\``
 
             if (isOwner) {
-                fallbackText += `\n\n╭┈   『 👑 』 \`impostazioni\`\n┆   『 👤 』 \`owner\`\n┆\n${ownerBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`zykbot system\``
+                fallbackText += `\n\n╭┈   『 👑 』 \`impostazioni\`\n┆   『 👤 』 \`owner\`\n┆\n${ownerBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`444bot\``
             }
 
             return await conn.sendMessage(m.chat, {
@@ -77,7 +77,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) =
 
         cards.push({
             image: { url: groupPp },
-            body: `╭┈   『 🛡️ 』 \`impostazioni\`\n┆   『 👥 』 \`admin\`\n┆\n${adminBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`zykbot system\``,
+            body: `╭┈   『 🛡️ 』 \`impostazioni\`\n┆   『 👥 』 \`admin\`\n┆\n${adminBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`444bot \``,
             buttons: [
                 { name: 'cta_url', buttonParamsJson: JSON.stringify({ display_text: '『🌐』 Dashboard', url: 'https://annoyed.vercel.app/' }) }
             ]
@@ -86,7 +86,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) =
         if (isOwner) {
             cards.push({
                 image: { url: ownerPp },
-                body: `╭┈   『 👑 』 \`impostazioni\`\n┆   『 👤 』 \`owner\`\n┆\n${ownerBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`zykbot system\``,
+                body: `╭┈   『 👑 』 \`impostazioni\`\n┆   『 👤 』 \`owner\`\n┆\n${ownerBody.split('\n').map(x => `┆   ${x}`).join('\n')}\n╰┈➤ 『 📦 』 \`444bot\``,
                 buttons: [
                     { name: 'cta_url', buttonParamsJson: JSON.stringify({ display_text: '『🌐』 Supporto', url: 'https://wa.me/4915510448603' }) }
                 ]

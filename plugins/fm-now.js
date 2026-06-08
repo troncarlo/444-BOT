@@ -9,7 +9,7 @@ let handler = async (m, { conn }) => {
     const user = db[target]
     const apiKey = global.APIKeys?.lastfm
 
-    if (!user) return m.reply('_Utente non registrato._')
+    if (!user) return m.reply('_Non hai collegato Last.FM! Usa .fmset per collegarlo._')
 
     try {
         const res = await axios.get(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${encodeURIComponent(user)}&api_key=${apiKey}&limit=1&format=json`)
@@ -42,7 +42,7 @@ let handler = async (m, { conn }) => {
         const targetNumber = target.split('@')[0]
         
         let txt = `╭┈➤ 『 🎵 』 *4 4 4 . F M*\n`
-        txt += `┆  『 👤 』 @${targetNumber} ${isNow ? 'sta ascoltando...' : 'stava ascoltando...'}\n`
+        txt += `┆  『 👤 』 @${targetNumber}\n`
         txt += `┆  『 🎧 』 *BRANO:* ${trackName}\n`
         txt += `┆  『 🎤 』 *ARTISTA:* ${artistName}\n`
         txt += `╰┈➤ 『 💿 』 *ALBUM:* ${albumName}`
@@ -59,7 +59,7 @@ let handler = async (m, { conn }) => {
                 locationMessage: {
                     degreesLatitude: 0,
                     degreesLongitude: 0,
-                    name: trackName,
+                    name: `${isNow ? '𝘴𝘵𝘢 𝘢𝘴𝘤𝘰𝘭𝘵𝘢𝘯𝘥𝘰...' : '𝘴𝘵𝘢𝘷𝘢 𝘢𝘴𝘤𝘰𝘭𝘵𝘢𝘯𝘥𝘰...'}`,
                     address: artistName,
                     jpegThumbnail: thumbBuffer
                 }

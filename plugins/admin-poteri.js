@@ -1,3 +1,5 @@
+import { jidNormalizedUser } from "@realvare/baileys"
+
 var handler = async (m, { conn, text, command }) => {
   let action, successMsg, errorMsg, helpMsg;
   if (['promote', 'promuovi', 'p'].includes(command)) {
@@ -32,8 +34,31 @@ var handler = async (m, { conn, text, command }) => {
     return m.reply(`『 🩼 』 \`Menziona un numero valido.\``);
   }
 
+  let user = number + '@s.whatsapp.net';
+  const target = jidNormalizedUser(user);
+
+  const botId = jidNormalizedUser(conn.user.id);
+  if (target === botId) {
+    return m.reply(`『 ❌ 』 \`Non posso modificare il mio stesso ruolo.\``);
+  }
+
+  const owners = (global.owner || []).map(o => jidNormalizedUser(o[0] + '@s.whatsapp.net'));
+  if (owners.includes(target)) {
+    return m.reply(`『 ❌ 』 \`Non posso modificare il ruolo del mio creatore.\``);
+  }
+
+  const metadata = await conn.groupMetadata(m.chat);
+  let participant = metadata.participants.find(p => 
+    jidNormalizedUser(p.id) === target || 
+    (p.jid && jidNormalizedUser(p.jid) === target) || 
+    (p.lid && jidNormalizedUser(p.lid) === target)
+  );
+
+  if (participant && participant.admin === 'superadmin') {
+    return m.reply(`『 ❌ 』 \`Non posso modificare il ruolo del creatore del gruppo.\``);
+  }
+
   try {
-    let user = number + '@s.whatsapp.net';
     await conn.groupParticipantsUpdate(m.chat, [user], action);
     m.reply(successMsg);
   } catch (e) {

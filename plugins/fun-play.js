@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import search from 'youtube-search-api'
-import { unlinkSync, readFileSync, existsSync, readdirSync, mkdirSync, writeFileSync } from 'fs'
+import { unlinkSync, readFileSync, existsSync, readdirSync, mkdirSync } from 'fs'
 import path from 'path'
 
 const execPromise = promisify(exec)
@@ -36,7 +36,7 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
             '--force-ipv4',
             '--no-warnings',
             '--no-check-certificate',
-            isAudio ? '-f "ba/b" --extract-audio --audio-format mp3' : '-f "bv*[ext=mp4]+ba[ext=m4a]/best[ext=mp4]/b"',
+            isAudio ? '-f "ba/b" --extract-audio --audio-format mp3' : '-S "vcodec:h264,res:720,acodec:m4a" --merge-output-format mp4',
             `-o "${tmpDir}/${baseName}.%(ext)s"`,
             `"${url}"`
         ].join(' ')
@@ -53,7 +53,7 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
             if (isAudio) {
                 await conn.sendMessage(m.chat, { audio: data, mimetype: 'audio/mpeg', fileName: `audio.mp3` }, { quoted: m })
             } else {
-                await conn.sendMessage(m.chat, { video: data, mimetype: 'video/mp4', caption: '> annoyed System' }, { quoted: m })
+                await conn.sendMessage(m.chat, { video: data, mimetype: 'video/mp4', caption: '> 444 bot' }, { quoted: m })
             }
             unlinkSync(finalPath)
         } catch (e) {
@@ -72,7 +72,7 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
     let thumb = v.thumbnail?.thumbnails?.[0]?.url || ''
     if (thumb.startsWith('//')) thumb = 'https:' + thumb
 
-    let caption = `╭┈➤ 『 🎵 』 *YOUTUBE PLAY*\n┆  『 📌 』 \`titolo\` ─ ${v.title}\n╰┈➤ 『 📦 』 \`annoyed system\``
+    let caption = `╭┈➤ 『 🎵 』 *444TUBE*\n┆  『 📌 』 \`titolo\` ─ ${v.title}\n╰┈➤ 『 📦 』 \`444 bot\``
 
     const buttons = [
         { buttonId: `${usedPrefix}play audio ${videoUrl}`, buttonText: { displayText: '🎵 AUDIO' }, type: 1 },
@@ -91,4 +91,4 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 }
 
 handler.command = ['play']
-export default handler
+export default handler;

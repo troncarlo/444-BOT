@@ -21,20 +21,31 @@ let isSaving = false
 const cmdSpamTracker = {}
 const cmdSpamBlocked = {}
 
-const SPAM_LIMIT    = 5      
-const SPAM_WINDOW   = 10_000  
-const SPAM_DURATION = 60_000  
+const SPAM_LIMIT    = 5
+const SPAM_WINDOW   = 5_000
+const SPAM_DURATION = 60_000
+
+const CACHE_TTL = 60_000
+
+let _ownersCache = null
+let _ownersCacheTs = 0
+let _bannedCache = null
+let _bannedCacheTs = 0
+
+let _activityDb = null
+let _activityDbPath = null
+let _activityDirty = false
 
 async function checkCmdSpam(jid, sender, conn, m) {
     const now = Date.now()
 
-    if (!cmdSpamBlocked[jid]) cmdSpamBlocked[jid] = {}  
+    if (!cmdSpamBlocked[jid]) cmdSpamBlocked[jid] = {}
     if (!cmdSpamTracker[jid]) cmdSpamTracker[jid] = {}
 
     const blockedUntil = cmdSpamBlocked[jid][sender]
     if (blockedUntil) {
-        if (now < blockedUntil) return true  
-        delete cmdSpamBlocked[jid][sender] 
+        if (now < blockedUntil) return true
+        delete cmdSpamBlocked[jid][sender]
     }
 
     const tracker = cmdSpamTracker[jid][sender] || { count: 0, firstTs: now }
@@ -51,9 +62,9 @@ async function checkCmdSpam(jid, sender, conn, m) {
         delete cmdSpamTracker[jid][sender]
         const senderNum = sender.split('@')[0]
         await conn.sendMessage(jid, {
-         text: `╭┈➤ 『 🚫 』 *ANTISPAM COMANDI*\n┆  『 👤 』 @${senderNum}\n┆  『 ⏱️ 』 Troppi comandi in poco tempo!\n┆  『 🔒 』 Bloccato per *60 secondi* in questo gruppo.\n╰┈➤ \`annoyed system\``,
-         mentions: [sender],
-         contextInfo: { ...global.newsletter().contextInfo }
+            text: `╭┈➤ 『 🚫 』 *ANTISPAM COMANDI*\n┆  『 👤 』 @${senderNum}\n┆  『 ⏱️ 』 Troppi comandi in poco tempo!\n┆  『 🔒 』 Bloccato per *60 secondi* in questo gruppo.\n╰┈➤ \`annoyed system\``,
+            mentions: [sender],
+            contextInfo: { ...global.newsletter().contextInfo }
         }, { quoted: m })
     }
 
@@ -130,38 +141,76 @@ async function saveDatabase() {
     }
 }
 
-async function handleActivity(m, conn) {
-    const dbPath = path.resolve('./media/attivita.json')
-    if (!fs.existsSync(path.dirname(dbPath))) fs.mkdirSync(path.dirname(dbPath), { recursive: true })
-    let db = {}
-    if (fs.existsSync(dbPath)) {
-        try { db = JSON.parse(fs.readFileSync(dbPath, 'utf-8')) } catch (e) { db = {} }
+function loadActivityDb() {
+    if (!_activityDbPath) {
+        _activityDbPath = path.resolve('./media/attivita.json')
     }
+    if (_activityDb !== null) return
+    try {
+        if (fs.existsSync(_activityDbPath)) {
+            _activityDb = JSON.parse(fs.readFileSync(_activityDbPath, 'utf-8'))
+        } else {
+            _activityDb = {}
+        }
+    } catch (e) {
+        _activityDb = {}
+    }
+}
+
+async function flushActivityDb() {
+    if (!_activityDirty || _activityDb === null) return
+    _activityDirty = false
+    try {
+        const dir = path.dirname(_activityDbPath)
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+        await fsAsync.writeFile(_activityDbPath, JSON.stringify(_activityDb, null, 2))
+    } catch (e) {
+        _activityDirty = true
+    }
+}
+
+async function handleActivity(m, conn) {
+    loadActivityDb()
     const sender = m.senderJid || m.sender
-    if (!db[sender]) db[sender] = { secondi: 0, oreNotificate: 0 }
+    if (!_activityDb[sender]) _activityDb[sender] = { secondi: 0, oreNotificate: 0 }
     let incremento = 1
     if (m.message?.audioMessage) {
         incremento = m.message.audioMessage.seconds || 0
     }
-    db[sender].secondi += incremento
-    let oreAttuali = Math.floor(db[sender].secondi / 3600)
-    if (oreAttuali > db[sender].oreNotificate) {
-        db[sender].oreNotificate = oreAttuali
+    _activityDb[sender].secondi += incremento
+    _activityDirty = true
+    const oreAttuali = Math.floor(_activityDb[sender].secondi / 3600)
+    if (oreAttuali > _activityDb[sender].oreNotificate) {
+        _activityDb[sender].oreNotificate = oreAttuali
         const annuncio = `╭┈➤ 『 🏆 』 *TRAGUARDO ATTIVITÀ*\n┆  『 👤 』 @${sender.split('@')[0]}\n┆  『 🕒 』 Ha raggiunto *${oreAttuali}* ${oreAttuali === 1 ? 'ora' : 'ore'} di attività!\n╰┈➤ 『 📦 』 \`annoyed system\``
-        await conn.sendMessage(m.chat, { 
-            text: annuncio, 
+        await conn.sendMessage(m.chat, {
+            text: annuncio,
             mentions: [sender],
             contextInfo: { ...global.newsletter().contextInfo }
         })
     }
-    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
 }
 
 function getOwnerJids() {
+    const now = Date.now()
+    if (_ownersCache && now - _ownersCacheTs < CACHE_TTL) return _ownersCache
     const ownersPath = path.join(process.cwd(), 'media', 'owners.json')
     let dynamicOwners = []
     try { dynamicOwners = JSON.parse(fs.readFileSync(ownersPath, 'utf-8')).dynamicOwners || [] } catch (e) {}
-    return { dynamicOwners }
+    _ownersCache = { dynamicOwners }
+    _ownersCacheTs = now
+    return _ownersCache
+}
+
+function getBannedData() {
+    const now = Date.now()
+    if (_bannedCache && now - _bannedCacheTs < CACHE_TTL) return _bannedCache
+    const bannedPath = path.join(process.cwd(), 'media', 'banned.json')
+    let bannedData = { users: [], chats: [] }
+    try { bannedData = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')) } catch (e) {}
+    _bannedCache = bannedData
+    _bannedCacheTs = now
+    return _bannedCache
 }
 
 function getGroupModeratori(jid) {
@@ -245,6 +294,7 @@ export async function handleStub(conn, m) {
 initDatabase()
 if (global.db_interval) clearInterval(global.db_interval)
 global.db_interval = setInterval(saveDatabase, 120000)
+setInterval(flushActivityDb, 30000)
 
 export default async function handler(conn, chatUpdate) {
     if (!chatUpdate) return
@@ -278,7 +328,7 @@ export default async function handler(conn, chatUpdate) {
         if (m.quoted) fixDownload(m.quoted)
         const msgType = Object.keys(m.message)[0]
         const msgContent = m.message[msgType]
-        
+
         let interactiveId = ''
         try {
             const interactiveMsg = m.message.interactiveResponseMessage
@@ -293,7 +343,7 @@ export default async function handler(conn, chatUpdate) {
                 }
             }
         } catch {}
-        
+
         let txt = m.message.conversation ||
                   m.message.extendedTextMessage?.text ||
                   m.message.imageMessage?.caption ||
@@ -302,7 +352,7 @@ export default async function handler(conn, chatUpdate) {
                   m.message.listResponseMessage?.singleSelectReply?.selectedRowId ||
                   m.message.templateButtonReplyMessage?.selectedId ||
                   interactiveId ||
-                  m.message.pollCreationMessageV3?.name || 
+                  m.message.pollCreationMessageV3?.name ||
                   m.message.pollCreationMessageV2?.name ||
                   msgContent?.text ||
                   msgContent?.caption ||
@@ -344,8 +394,8 @@ export default async function handler(conn, chatUpdate) {
                 try {
                     groupMetadata = await conn.groupMetadata(jid)
                     if (conn.chats[jid]) conn.chats[jid].metadata = groupMetadata
-                } catch (e) { 
-                    groupMetadata = groupMetadata || { participants: [] } 
+                } catch (e) {
+                    groupMetadata = groupMetadata || { participants: [] }
                 }
             }
 
@@ -413,9 +463,7 @@ export default async function handler(conn, chatUpdate) {
 
         if (!isGroup) isAdmin = isOwner
 
-        const bannedPath = path.join(process.cwd(), 'media', 'banned.json')
-        let bannedData = { users: [], chats: [] }
-        try { bannedData = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')) } catch (e) {}
+        const bannedData = getBannedData()
         if (!isOwner && (bannedData.users?.includes(sender) || bannedData.chats?.includes(jid))) return
 
         m.isAdmin = isAdmin
@@ -434,9 +482,9 @@ export default async function handler(conn, chatUpdate) {
         if (isGroup) {
             if (!global.db.data.groups[jid]) global.db.data.groups[jid] = { messages: 0, antilink: true, antiwhatsapp: true, soloadmin: false }
             global.db.data.groups[jid].messages += 1
-            
+
             await bestemmiometro(m, { conn }).catch(e => console.error(e))
-            
+
             if (await antilink(m, { conn, isAdmin, isBotAdmin, users: global.db.data.users })) return
             antiwa(m, { conn, isAdmin, isBotAdmin }).catch(() => {})
             if (global.db.data.groups[jid].antimedia) {
@@ -447,14 +495,7 @@ export default async function handler(conn, chatUpdate) {
 
         await print(m, conn)
         if (m.key.fromMe) return
-        if (!isGroup && !isOwner && m.text) {
-            await conn.readMessages([m.key])
-            const logGroup = '120363403043504351@g.us'
-            const testoLog = `╭┈  『 📩 』 \`messaggio privato\`\n┆  『 👤 』 \`utente\` ─ @${sender.split('@')[0]}\n┆  『 📝 』 \`contenuto\` ─ ${m.text}\n╰┈➤ 『 🔒 』 \`utente bloccato\``
-            await conn.sendMessage(logGroup, { text: testoLog, mentions: [sender] }, { quoted: m })
-            try { await conn.updateBlockStatus(sender, 'block') } catch (e) {}
-            return
-        }
+        if (!isGroup && !isOwner) return
         await antiPrivato.call(conn, m, { isOwner })
         if (global.db.data.settings?.[botId]?.ai_rispondi && m.text) {
             try { await rispondiGemini(m, { conn, isOwner }) } catch (e) {}
@@ -494,8 +535,11 @@ export default async function handler(conn, chatUpdate) {
                 if (plugin.group && !isGroup) { await global.dfail('group', m, conn); continue }
                 if (plugin.botAdmin && !isBotAdmin) { await global.dfail('botAdmin', m, conn); continue }
                 try {
-                    await plugin(m, { conn, args, text, usedPrefix, command, isOwner, isAdmin, isBotAdmin, participants, groupAdmins, isGroup })
-                } catch (e) { console.error(e) }
+                    await Promise.race([
+                        plugin(m, { conn, args, text, usedPrefix, command, isOwner, isAdmin, isBotAdmin, participants, groupAdmins, isGroup }),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error(`plugin timeout: ${name}`)), 15000))
+                    ])
+                } catch (e) { console.error(chalk.yellow('[Plugin Error]:'), name, e.message) }
                 break
             }
         }
@@ -506,7 +550,7 @@ global.dfail = async (type, m, conn) => {
     const msgTexts = {
         owner: '`𐔌👑꒱ ` _*Solo il proprietario può usare questo comando!*_',
         admin: '`𐔌🛡️ ꒱ ` _*Solo gli amministratori possono usare questo comando!*_',
-        mod: '`𐔌🔰꒱ ` _*Solo i moderatori possono usare questo comando!*_',  
+        mod: '`𐔌🔰꒱ ` _*Solo i moderatori possono usare questo comando!*_',
         group: '`𐔌👥 ꒱ ` _*Questo comando funziona solo nei gruppi!*_',
         botAdmin: '`𐔌🤖 ꒱ ` _*Devo essere admin per farlo!*_'
     }
